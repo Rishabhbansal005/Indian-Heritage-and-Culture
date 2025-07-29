@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bharat AI - Your Guide to India</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* Custom CSS for enhanced aesthetics with Indian-inspired theme */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: black;
+            /* Changed to column layout for overall page */
+            display: flex;
+            flex-direction: column;
+            /* Arrange children vertically */
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            /* Remove body padding, let content manage its own */
+            box-sizing: border-box;
+            overflow-y: auto;
+            /* Allow scrolling if content overflows */
+        }
+
+        header {
+            width: 100%;
+            /* Ensure header takes full width */
+            position: fixed;
+            /* Fix navbar to the top */
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            /* Ensure navbar is above other content */
+            /* You might want to add a background to the header/navbar itself
+             if it's not already handled in ../css/style.css for visibility */
+            background-color: black;
+            /* Example background, adjust as needed */
+            padding: 10px 0;
+            /* Add some padding around the navbar content */
+        }
+
+        .chat-container {
+            margin: 0 auto;
+            margin-top: 100px;
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 43rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 79vh;
+            max-height: 950px;
+            animation: fadeInScale 0.8s ease-out;
+            flex-shrink: 0;
+        }
+
+        /* The .main div is likely not needed for structural layout with fixed header.
+         If it holds other content, adjust its flex properties.
+         For now, remove its centering styles if they are overriding. */
+        .main {
+            /* Remove any display: flex; justify-content: center; align-items: center; if present */
+            /* Add padding-top to ensure content starts below the fixed header */
+            padding-top: 20px;
+            /* Adjust this based on your navbar's height */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Center the chat container if .main is its parent */
+        }
+
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            background-color: #fcfcfc;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar for webkit browsers */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #b0bec5;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #90a4ae;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 1rem 1.35rem;
+            border-radius: 1.25rem;
+            word-wrap: break-word;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: slideIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+            color: #ffffff;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background-color: #f5f5f5;
+            color: #333333;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        .loading-indicator {
+            text-align: center;
+            padding: 0.75rem;
+            color: #666;
+            font-style: italic;
+            font-size: 0.9rem;
+            background-color: #f0f2f5;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 30px;
+        }
+
+        /* Styles for the animated dots */
+        .loading-indicator span {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            background-color: #d32f2f;
+            border-radius: 50%;
+            margin: 0 4px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        .loading-indicator span:nth-child(3) {
+            animation-delay: 0s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 1.2rem;
+            border-top: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            border-bottom-left-radius: 1.5rem;
+            border-bottom-right-radius: 1.5rem;
+        }
+
+        .chat-input-area input[type="text"] {
+            flex-grow: 1;
+            padding: 0.9rem 1.4rem;
+            border: 1px solid #bdbdbd;
+            border-radius: 1.5rem;
+            font-size: 1.05rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #f8f8f8;
+        }
+
+        .chat-input-area input[type="text"]:focus {
+            border-color: #d32f2f;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.2);
+        }
+
+        .chat-input-area button {
+            background: linear-gradient(45deg, #d32f2f 0%, #ef5350 100%);
+            color: #ffffff;
+            padding: 0.9rem 1.6rem;
+            border: none;
+            border-radius: 1.5rem;
+            margin-left: 0.8rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+        }
+
+        .chat-input-area button:hover {
+            background: linear-gradient(45deg, #c62828 0%, #e53935 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-input-area button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="bg-music" autoplay loop>
+        <source src="Midnight Stillness - Pandit Hari Prasad Chaurasia (Ragas For Relaxation,Absolute Calm)  Music Today.mp3" type="audio/mp3">
+    </audio>
+    <div class="main">
+        <header>
+            <div class="navbar">
+                <div class="logo">
+                    <img src="/static/logo/logo 5.png" alt="Logo">
+                    <p>ESSENCE OF भारत </p>
+                </div>
+                <ul class="links">
+                    <li><a href="/home/index.html"><img src="/static/icon/home.png" alt="">Home</a></li>
+                        <li><a href="/categories/categories.html"><img src="/static/icon/lotus (1).png"
+                                    alt="">Categories</a></li>
+                        <li><a href="../states/states.html"><img src="/static/icon/temple.png" alt="">States</a></li>
+                        <li><a href="../story/story.html"><img src="/static/icon/book.png" alt="">Stories</a></li>
+                       
+                        <li><a href="bharatai.html"><img src="/static/icon/bharat ai.png" alt="">Bharat Ai</a></li>
+                </ul>
+                <div class="toggle">
+                    <img class="icon" src="/static/toggle-image/diya.gifs" alt="Toggle">
+                </div>
+            </div>
+            <div class="dropdownmenu">
+                <ul>
+                     <li><a href="/home/index.html"><img src="/static/icon/home.png" alt="">Home</a></li>
+                        <li><a href="/categories/categories.html"><img src="/static/icon/lotus (1).png"
+                                    alt="">Categories</a></li>
+                        <li><a href="../states/states.html"><img src="/static/icon/temple.png" alt="">States</a></li>
+                        <li><a href="../story/story.html"><img src="/static/icon/book.png" alt="">Stories</a></li>
+                       
+                        <li><a href="bharatai.html"><img src="/static/icon/bharat ai.png" alt="">Bharat Ai</a></li>
+                </ul>
+            </div>
+            <script src="/static/js/script.js"></script>
+        </header>
+
+        <div class="chat-container" role="main">
+            <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+            </div>
+            <div class="loading-indicator" id="loading-indicator" style="display: none;" role="status"
+                aria-label="Bharat AI is thinking">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="chat-input-area" role="form">
+                <label for="user-input" class="sr-only">Ask Bharat AI about Bharat</label>
+                <input type="text" id="user-input" placeholder="Ask Bharat AI about Bharat..." autocomplete="off"
+                    aria-label="Type your message here">
+                <button id="send-button" type="submit" aria-label="Send message">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Get references to DOM elements
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        // IMPORTANT: chatHistory will now be managed on the frontend and sent to the backend
+        // The backend will add the system prompt.
+        let chatHistory = []; // Start with an empty history on frontend
+
+        // Initial welcome message from the AI (displayed immediately)
+        // This message is displayed by the frontend, the system prompt is handled by the backend.
+        appendMessage('ai', "Namaste! I am Bharat AI, your dedicated guide to everything about Bharat. How can I help you today?");
+
+
+        // Function to append messages to the chat display
+        function appendMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message-bubble');
+            if (sender === 'user') {
+                messageDiv.classList.add('user-message');
+            } else {
+                messageDiv.classList.add('ai-message');
+            }
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            // Scroll to the bottom to show the latest message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to send message to the FastAPI Backend
+        async function sendMessage() {
+            const userText = userInput.value.trim();
+            if (userText === '') return; // Don't send empty messages
+
+            // Append user message to display
+            appendMessage('user', userText);
+            // Add user message to chat history for the next API call
+            chatHistory.push({ role: "user", content: userText }); // Use 'content' for Groq/OpenAI format
+
+            userInput.value = ''; // Clear input field
+            sendButton.disabled = true; // Disable send button
+            loadingIndicator.style.display = 'block'; // Show loading indicator
+
+            try {
+                // --- CRITICAL CHANGE: Point to your FastAPI backend endpoint ---
+                const backendApiUrl = "/chat"; // This is a relative path, assuming FastAPI is on the same host/port
+
+                const payload = {
+                    message: userText,
+                    // Send a copy of chatHistory to avoid modifying the original during map
+                    chatHistory: chatHistory.map(msg => ({ role: msg.role, content: msg.content }))
+                };
+
+                const response = await fetch(backendApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Backend Error: ${errorData.detail || response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                let aiResponseText = "Sorry, Bharat AI could not retrieve a response. Please try again."; // English for "Sorry, Bharat AI couldn't get a response. Please try again."
+
+                if (result.response) {
+                    aiResponseText = result.response;
+                    // --- FIX: Remove <think> tags and content within them more robustly ---
+                    // This regex finds content between <think> and </think> tags (non-greedy, global, case-insensitive)
+                    // and also handles potential leading/trailing whitespace around the tags.
+                    aiResponseText = aiResponseText.replace(/\s*<think>.*?<\/think>\s*/gis, '').trim();
+                    // Optional: Further clean up common thought-like phrases if they appear without tags
+                    // This is more aggressive and might remove desired content if not careful
+                    aiResponseText = aiResponseText.replace(/^(Okay, the user is asking.*?|I need to provide a clear and concise answer\.|I'll make sure the response is friendly and informative\.|The user repeated the question, maybe they didn't see the first response or wanted to confirm\.)\s*/gis, '').trim();
+                    // Clean up multiple newlines if they appear after removal
+                    aiResponseText = aiResponseText.replace(/\n\s*\n/g, '\n\n');
+
+                    // --- NEW FIX: Replace "India" with "Bharat" as a frontend safeguard ---
+                    // This regex finds "India" (case-insensitive, whole word) and replaces it with "Bharat".
+                    aiResponseText = aiResponseText.replace(/\bIndia\b/gi, 'Bharat');
+
+                } else {
+                    console.warn("Unexpected backend response structure:", result);
+                }
+
+                // Append AI response to display
+                appendMessage('ai', aiResponseText);
+                // Add AI response to chat history for future context
+                chatHistory.push({ role: "assistant", content: aiResponseText }); // Use 'assistant' for AI role
+
+            } catch (error) {
+                console.error("Error communicating with backend:", error);
+                appendMessage('ai', `I apologize, but an error occurred: ${error.message}. Please try again later.`); // English for "I apologize, an error occurred: ... Please try again later."
+            } finally {
+                sendButton.disabled = false; // Re-enable send button
+                loadingIndicator.style.display = 'none'; // Hide loading indicator
+                userInput.focus(); // Put focus back on input field
+            }
+        }
+
+        // Event Listeners (remain the same)
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Focus on input when page loads (remain a consistent practice)
+        window.onload = () => {
+            userInput.focus();
+        };
+    </script>
+    </body>
+
+</html>

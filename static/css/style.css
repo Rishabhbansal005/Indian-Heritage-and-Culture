@@ -1,0 +1,308 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kumar+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+}
+
+.main {
+
+    height: 95vh;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* .main .box {
+    width: 100%;
+    height: 95vh;
+    background-color: rgb(0, 0, 0);
+    opacity: 0.3;
+    position: absolute;
+    top: 0;
+} */
+
+/* Navbar styling */
+header {
+    position: fixed;
+    width: 100%;
+    padding: 0 2rem;
+    z-index: 1000;
+
+}
+
+.navbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    padding: 10px 20px;
+    justify-content: space-between;
+}
+
+.links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.links li {
+    margin: 0 15px;
+    /* Spacing between the links */
+}
+
+
+
+.links li a {
+    display: flex;
+    align-items: center;
+    color: white;
+    background-clip: text;
+    text-decoration: none;
+    font-size: 21px;
+    padding: 0;
+    font-weight: bold;
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    transition: color 0.5s ease, background 2s ease;
+    position: relative;
+}
+
+.links li a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    /* Position at the top */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    /* Thickness of the underline */
+    background: linear-gradient(to right, #ab5907, #FFFFFF, #0c6603);
+    /* Gradient color */
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+    /* Smooth transition */
+    transform-origin: left;
+    /* Start the animation from the left */
+}
+
+.links li a:hover::before {
+    transform: scaleX(1);
+    /* Animate the underline when hovering */
+}
+
+.links li a img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    color: white;
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg) brightness(100%) contrast(100%);
+    /* White icon */
+}
+
+
+
+.links li a:hover img {
+    filter: invert(35%) sepia(95%) saturate(2000%) hue-rotate(15deg) brightness(100%) contrast(100%);
+}
+
+
+.links li a:hover::before {
+    transform: scaleX(1);
+    /* Show the line on hover */
+}
+
+
+
+
+
+.toggle {
+    display: none;
+}
+
+.icon {
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    gap: 23px;
+}
+
+.logo a {
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+    display: contents;
+}
+
+
+.logo p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #FF9933, #FFFFFF, #138808);
+    -webkit-background-clip: text;
+    /* For Chrome/Safari */
+    -webkit-text-fill-color: transparent;
+    /* For Chrome/Safari */
+    background-clip: text;
+    /* For other browsers */
+    color: transparent;
+
+    font-size: 26px;
+
+    font-family: 'Kumar One', cursive;
+
+}
+
+
+
+.logo img {
+    width: 70px;
+    height: 70px;
+}
+
+@media screen and (max-width: 1024px) {
+    .logo {
+        margin: 0 -27px;
+        padding: 0px 0 0 0;
+        gap: 9px;
+    }
+
+    .logo p {
+        font-size: 20px;
+    }
+
+    .logo img {
+        width: 50px;
+        height: 45px;
+    }
+
+}
+
+@media screen and (max-width: 396px) {
+    .icon {
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        margin: 0px -21px;
+    }
+
+    .logo p {
+        font-size: 13px;
+    }
+
+    .logo img {
+        width: 40px;
+        height: 40px;
+    }
+
+}
+
+/* Dropdown Menu */
+.dropdownmenu {
+    position: absolute;
+    top: 84px;
+    right: 2rem;
+    width: 300px;
+    background-color: rgba(21, 20, 20, 0.3);
+    backdrop-filter: blur(3px);
+    border-radius: 10px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+    z-index: 1000;
+}
+
+.dropdownmenu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdownmenu ul {
+    padding: 0;
+    margin: 0;
+}
+
+.dropdownmenu li {
+    padding: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdownmenu li a {
+    color: white;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+
+.dropdownmenu li a img {
+    width: 20px;
+    /* Set the size for dropdown icons */
+    height: 20px;
+    margin-right: 8px;
+    /* Adds space between icon and text */
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(180deg) brightness(100%) contrast(100%);
+    /* White icon */
+}
+
+
+.dropdown-action {
+    padding: 1rem;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dropdown-action a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 992px) {
+
+    .navbar .links,
+    .navbar .action {
+        display: none;
+    }
+
+    .navbar .toggle {
+        display: block;
+    }
+}
+
+@media (max-width: 1024px) {
+
+    .navbar .links,
+    .navbar .action {
+        display: none;
+    }
+
+    .navbar .toggle {
+        display: block;
+    }
+}
