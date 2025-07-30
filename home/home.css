@@ -1,0 +1,406 @@
+ @import url('https://fonts.cdnfonts.com/css/ica-rubrik-black');
+ @import url('https://fonts.cdnfonts.com/css/poppins');
+ @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+
+ * {
+     margin: 0;
+     padding: 0;
+     box-sizing: border-box;
+ }
+
+ body {}
+
+ body::before {
+     position: absolute;
+     width: min(1400px, 90vw);
+     top: 10%;
+     left: 50%;
+     height: 90%;
+     transform: translateX(-50%);
+     content: '';
+     background-image: url(images/bg.png);
+     background-size: 100%;
+     background-repeat: no-repeat;
+     background-position: top center;
+     pointer-events: none;
+ }
+
+ .banner {
+     width: 100%;
+     height: 135vh;
+     text-align: center;
+     overflow: hidden;
+     position: relative;
+     padding-top: 100px;
+ }
+
+ @media screen and (max-width: 1024px) {
+     .banner {
+         height: 110vh;
+     }
+ }
+
+ @media screen and (max-width: 768px) {
+     .banner {
+         height: 95vh;
+     }
+ }
+
+ @media screen and (max-width: 480px) {
+     .banner {
+         height: 85vh;
+     }
+ }
+
+ .banner .slider {
+     position: absolute;
+     width: 200px;
+     height: 250px;
+
+     top: 80px;
+     left: calc(50% - 100px);
+     transform-style: preserve-3d;
+     transform: perspective(1000px);
+     animation: autoRun 20s linear infinite;
+     z-index: 2;
+
+
+ }
+
+ @keyframes autoRun {
+     from {
+         transform: perspective(1000px) rotateX(-16deg) rotateY(0deg);
+     }
+
+     to {
+         transform: perspective(1000px) rotateX(-16deg) rotateY(360deg);
+     }
+ }
+
+ .banner .slider .item {
+     position: absolute;
+     inset: 0 0 0 0;
+     transform:
+         rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(410px);
+
+ }
+
+
+
+ .banner .slider .item img {
+     margin: 50px 0px 0px 0px;
+     padding: 0;
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     display: block;
+     -webkit-box-reflect: below 10px linear-gradient(to bottom, rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.4));
+     transition: transform 0.3s ease-in-out;
+     transform-origin: center center;
+
+ }
+
+ .banner .slider .item img:hover {
+     transform: scale(1.2);
+ }
+
+
+
+ .banner .content {
+     position: absolute;
+     bottom: 0;
+     left: 50%;
+     transform: translateX(-50%);
+     width: min(1400px, 100vw);
+     height: max-content;
+     padding-bottom: 100px;
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+     align-items: center;
+     z-index: 1;
+ }
+
+ .banner .content h1 {
+     font-family: 'ICA Rubrik';
+     font-size: 16em;
+     line-height: 1em;
+     color: #25283B;
+     position: relative;
+ }
+
+ .banner .content h1::after {
+     position: absolute;
+     inset: 0 0 0 0;
+     content: attr(data-content);
+     z-index: 2;
+     -webkit-text-stroke: 2px #d2d2d2;
+     color: transparent;
+ }
+
+ .banner .content .author {
+     font-family: Poppins;
+     text-align: right;
+     max-width: 200px;
+ }
+
+ .banner .content h2 {
+     font-size: 3em;
+ }
+
+ .banner .content .model {
+     background-image: url(images/model.png);
+     width: 100%;
+     height: 75vh;
+     position: absolute;
+     bottom: 0;
+     left: 0;
+     background-size: auto 130%;
+     background-repeat: no-repeat;
+     background-position: top center;
+     z-index: 1;
+ }
+
+ @media screen and (max-width: 1023px) {
+     .banner .slider {
+         width: 160px;
+         height: 200px;
+         left: calc(50% - 80px);
+     }
+
+     .banner .slider .item {
+         transform:
+             rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(300px);
+     }
+
+     .banner .content h1 {
+         text-align: center;
+         width: 100%;
+         text-shadow: 0 10px 20px #000;
+         font-size: 7em;
+     }
+
+     .banner .content .author {
+         color: #fff;
+         padding: 20px;
+         text-shadow: 0 10px 20px #000;
+         z-index: 2;
+         max-width: unset;
+         width: 100%;
+         text-align: center;
+         padding: 0 30px;
+     }
+ }
+
+ @media screen and (max-width: 767px) {
+     .banner .slider {
+         width: 100px;
+         height: 150px;
+         left: calc(50% - 50px);
+     }
+
+     .banner .slider .item {
+         transform:
+             rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(180px);
+     }
+
+     .banner .content h1 {
+         font-size: 5em;
+     }
+ }
+
+
+.head {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 800px;
+    padding: 20px;
+    margin-top: 0px;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.head.is-in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media screen and (max-width: 1024px) {
+    .head {
+        margin-top: 350px;
+    }
+}
+@media screen and (max-width: 768px) {
+    .head {
+        margin-top: 250px;
+    }
+}
+@media screen and (max-width: 480px) {
+    .head {
+        margin-top: 150px;
+    }
+}
+
+ .text {
+     text-align: center;
+     font-family: 'Playfair Display', serif;
+     font-weight: 700;
+     color: #ffffff;
+     margin-bottom: 10px;
+     margin-top: 130px;
+
+     white-space: nowrap;
+
+     font-size: clamp(2em, 5vw, 3em);
+ }
+
+ .para {
+     text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: clamp(0.9em, 2.5vw, 1.2em);
+    line-height: 1.6;
+    max-width: 900px; 
+    margin-left: auto;
+    margin-right: auto
+}
+
+.images {
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 32px 300px 50px auto;
+    padding-right: 0px;
+
+    opacity: 0; 
+    transform: translateY(50px); 
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    
+}
+
+/* Add this class for when .images is in view */
+.images.is-in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+ .img-bottom {
+     margin: 17px 174px 0px 170vh;
+     width: 523px;
+     height: 271px;
+     border: 3px solid black;
+     background-color: #f0f0f0;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     overflow: hidden;
+     margin-bottom: 20px;
+     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+     border-radius: 15px;
+ }
+
+ .img-bottom img {
+     width: 100%;
+     height: 100%;
+     object-fit: fill;
+     display: block;
+     border-radius: 15px;
+     /* Apply border-radius to the image as well */
+ }
+
+ .img-bottom:nth-child(even) {
+     margin-left: 100px;
+     /* This margin will now stagger from the center */
+ }
+
+ @media screen and (max-width: 768px) {
+     .images {
+         align-items: center;
+         /* Already set, good for centering on small screens */
+         padding-left: 0;
+         padding-right: 0;
+     }
+
+     .img-bottom {
+         width: 85%;
+         height: 120px;
+         margin-left: 0 !important;
+         /* Resets the stagger on small screens */
+         margin-right: auto;
+         margin-bottom: 15px;
+     }
+ }
+
+ @media screen and (max-width: 480px) {
+     .img-bottom {
+         width: 95%;
+         height: 100px;
+         margin-bottom: 10px;
+     }
+ }
+
+ .text-ticker {
+     font-size: 25px;
+     padding-block: 10px;
+     overflow: hidden;
+     user-select: none;
+     --gap: 100px;
+     display: flex;
+     gap: var(--gap);
+     background: transparent;
+     white-space: nowrap;
+     border: none;
+     outline: none;
+     box-shadow: none;
+ }
+
+
+ .text-ticker ul {
+     list-style: none;
+     flex-shrink: 0;
+     min-width: 100%;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     gap: var(--gap);
+     animation: scroll 15s linear infinite;
+ }
+
+ .text-ticker:hover ul {
+     animation-play-state: paused;
+ }
+
+ @keyframes scroll {
+     to {
+         transform: translateX(calc(-100% - var(--gap)));
+     }
+ }
+
+ .text-ticker li {
+     font-size: larger;
+     font-weight: bold;
+     font-family: sans-serif;
+ }
+
+ /* Tricolor styling */
+ .saffron {
+     color: #ff9933;
+ }
+
+ .white {
+     color: #ffffff;
+     text-shadow: 0 0 5px #000;
+ }
+
+ .green {
+     color: #138808;
+ }
