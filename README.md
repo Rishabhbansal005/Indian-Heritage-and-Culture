@@ -6,7 +6,7 @@ This project is a modern and visually refreshed website dedicated to showcasing 
 
 
 
-<h2>__Click on this image to view the demo if the projetc.__</h2>
+<h2>Click on this image to view the demo of the projetc.</h2>
 
 A key feature of this website is the integrated Bharat AI chatbot.
 
