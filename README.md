@@ -2,6 +2,8 @@
 Overview</h1>
 This project is a modern and visually refreshed website dedicated to showcasing the rich heritage and vibrant culture of Bharat. My aim was to provide an engaging and intuitive experience for users exploring Indian culture.
 
+[![Watch the full demo video](http://img.youtube.com/vi/38/0.jpg)](https://www.youtube.com/watch?v=fII9_hPRFzM)
+
 A key feature of this website is the integrated Bharat AI chatbot.
 
 <h2>Bharat AI: Your Personal Guide to Bharat</h2>
