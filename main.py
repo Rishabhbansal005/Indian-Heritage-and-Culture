@@ -88,12 +88,10 @@ async def chat_endpoint(request: Request):
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 
-@app.get("/", response_class=FileResponse)
+@app.get("/")
 async def serve_home():
-    index_path = os.path.join(BASE_DIR, "home", "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return {"error": "index.html not found in home folder."}
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/home/index.html")
 
 
 @app.get("/bharat-ai", response_class=HTMLResponse)
