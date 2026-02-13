@@ -7,14 +7,22 @@ from dotenv import load_dotenv
 import os
 import uvicorn
 
+<<<<<<< HEAD
 # Load environment variables
 load_dotenv()
 
+=======
+
+load_dotenv()
+
+
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
 app = FastAPI(
     title="Bharat AI Chatbot Backend",
     description="Backend for Bharat AI, interacting with Groq Cloud for LLM responses."
 )
 
+<<<<<<< HEAD
 # --- 1. SETUP PATHS AND MOUNTING ---
 # This ensures the server knows exactly where your folders are located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +42,15 @@ app.mount("/home", StaticFiles(directory=os.path.join(BASE_DIR, "home")), name="
 templates = Jinja2Templates(directory="static")
 
 # --- 2. GROQ SETUP ---
+=======
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+templates = Jinja2Templates(directory="static")
+
+
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable not set.")
@@ -41,7 +58,14 @@ if not GROQ_API_KEY:
 groq_client = Groq(api_key=GROQ_API_KEY)
 GROQ_DEEPSEEK_MODEL = "moonshotai/kimi-k2-instruct-0905"
 
+<<<<<<< HEAD
 # --- 3. SYSTEM PROMPT ---
+=======
+
+GROQ_DEEPSEEK_MODEL = "deepseek-r1-distill-llama-70b"
+
+# --- Initial System Prompt for Bharat AI ---
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
 SYSTEM_PROMPT = """
 You are Bharat AI, a highly specialized AI assistant dedicated exclusively to providing information about Bharat.
 Your purpose is to educate users about Bharat's rich history, diverse culture, geographical features, current affairs,
@@ -60,24 +84,49 @@ and cannot answer that specific query.
 - Get straight to the point with the factual information.
 """
 
+<<<<<<< HEAD
 # --- 4. ENDPOINTS ---
+=======
+
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
 @app.post("/chat")
 async def chat_endpoint(request: Request):
     try:
         data = await request.json()
         user_message = data.get("message")
+<<<<<<< HEAD
+=======
+        
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
         chat_history = data.get("chatHistory", [])
 
         if not user_message:
             raise HTTPException(status_code=400, detail="Message cannot be empty.")
 
+<<<<<<< HEAD
         messages_for_groq = [{"role": "system", "content": SYSTEM_PROMPT}]
         for msg in chat_history:
+=======
+       
+        messages_for_groq = [
+            {"role": "system", "content": SYSTEM_PROMPT}
+        ]
+       
+        for msg in chat_history:
+            
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
             if msg.get("role") in ["user", "assistant"] and "content" in msg:
                 messages_for_groq.append({"role": msg["role"], "content": msg["content"]})
 
+<<<<<<< HEAD
         messages_for_groq.append({"role": "user", "content": user_message})
 
+=======
+        
+        messages_for_groq.append({"role": "user", "content": user_message})
+
+        
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
         chat_completion = groq_client.chat.completions.create(
             messages=messages_for_groq,
             model=GROQ_DEEPSEEK_MODEL,
@@ -88,12 +137,26 @@ async def chat_endpoint(request: Request):
         ai_response_text = chat_completion.choices[0].message.content
         return {"response": ai_response_text}
 
+<<<<<<< HEAD
     except Exception as e:
         print(f"Error in chat_endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 @app.get("/", response_class=FileResponse)
 async def serve_home():
+=======
+    except HTTPException as e:
+        
+        raise e
+    except Exception as e:
+       
+        print(f"Error in chat_endpoint: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root(request: Request):
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
     """
     Serves the main landing page using an absolute path to prevent 404s.
     """
@@ -107,6 +170,10 @@ async def read_chatbot(request: Request):
     """
     Serves the chatbot page.
     """
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 951686f9f20212c10180c2cdb9b790159fb7ef3e
     return templates.TemplateResponse("bharatai.html", {"request": request})
 
 if __name__ == "__main__":
