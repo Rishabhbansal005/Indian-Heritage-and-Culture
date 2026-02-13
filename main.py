@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from groq import Groq
@@ -7,36 +7,41 @@ from dotenv import load_dotenv
 import os
 import uvicorn
 
-# --- Load environment variables ---
+# Load environment variables
 load_dotenv()
 
-# --- FastAPI App Initialization ---
 app = FastAPI(
     title="Bharat AI Chatbot Backend",
     description="Backend for Bharat AI, interacting with Groq Cloud for LLM responses."
 )
 
-# --- Serve Static Files (HTML, CSS, JS, Images, Audio, etc.) ---
-# This tells FastAPI to look for your frontend files in a directory named "static".
-# All files and subdirectories within 'static' will be accessible under the /static URL path.
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# --- 1. SETUP PATHS AND MOUNTING ---
+# This ensures the server knows exactly where your folders are located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Jinja2Templates is used here to serve the bharatai.html file directly.
-# The directory should point to where your HTML templates are.
+# Mount specific asset directories
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+app.mount("/assets", StaticFiles(directory=os.path.join(BASE_DIR, "assets")), name="assets")
+app.mount("/categories", StaticFiles(directory=os.path.join(BASE_DIR, "categories")), name="categories")
+app.mount("/states", StaticFiles(directory=os.path.join(BASE_DIR, "states")), name="states")
+app.mount("/story", StaticFiles(directory=os.path.join(BASE_DIR, "story")), name="story")
+
+# THE SECRET FIX: Mount the 'home' folder to the root address
+# This allows index.html to find 'home.css' and 'home.js' right at localhost:9000/
+app.mount("/home", StaticFiles(directory=os.path.join(BASE_DIR, "home")), name="home")
+
+# Setup Jinja2 Templates (Note: You can keep this pointing to static if bharatai.html is there)
 templates = Jinja2Templates(directory="static")
 
-# --- Groq API Configuration ---
+# --- 2. GROQ SETUP ---
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
 if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY environment variable not set. Please create a .env file or set the variable.")
+    raise ValueError("GROQ_API_KEY environment variable not set.")
 
 groq_client = Groq(api_key=GROQ_API_KEY)
+GROQ_DEEPSEEK_MODEL = "moonshotai/kimi-k2-instruct-0905"
 
-# --- Choose your DeepSeek model hosted on GroqCloud ---
-GROQ_DEEPSEEK_MODEL = "deepseek-r1-distill-llama-70b"
-
-# --- Initial System Prompt for Bharat AI ---
+# --- 3. SYSTEM PROMPT ---
 SYSTEM_PROMPT = """
 You are Bharat AI, a highly specialized AI assistant dedicated exclusively to providing information about Bharat.
 Your purpose is to educate users about Bharat's rich history, diverse culture, geographical features, current affairs,
@@ -50,70 +55,60 @@ and cannot answer that specific query.
 - When a user refers to 'India' in their query, understand that they mean 'Bharat'. Always process and respond as if they said 'Bharat'.
 - You MUST NOT use the word 'India' in any of your responses. Always use 'Bharat' instead.
 - Provide clear, concise, and direct answers.
-- NEVER include any internal thoughts, reasoning steps, or conversational filler like "Okay, the user is asking...", "I should respond...", "I'll make sure...", or any similar self-talk.
-- Do NOT generate any XML-like tags (e.g., <think>, <response>, <tool_code>, <tool_output>).
+- NEVER include any internal thoughts, reasoning steps, or conversational filler like "Okay, the user is asking...".
+- Do NOT generate any XML-like tags (e.g., <think>, <response>).
 - Get straight to the point with the factual information.
-- Keep your responses factual and to the necessary detail, unless explicitly asked for more detail.
-- If a greeting is received, respond with a simple, direct greeting and an offer to help with Bharat-related information, without any internal monologue.
-- Ensure your output is purely the response for the user.
 """
 
-# --- API Endpoint for Chat ---
+# --- 4. ENDPOINTS ---
 @app.post("/chat")
 async def chat_endpoint(request: Request):
-    """
-    Handles chat messages from the frontend, sends them to Groq Cloud,
-    and returns the AI's response.
-    """
     try:
         data = await request.json()
         user_message = data.get("message")
-        # chatHistory is expected to be a list of {"role": "user/assistant", "content": "text"}
         chat_history = data.get("chatHistory", [])
 
         if not user_message:
             raise HTTPException(status_code=400, detail="Message cannot be empty.")
 
-        # Prepare messages for Groq API, including the system prompt and previous history
-        messages_for_groq = [
-            {"role": "system", "content": SYSTEM_PROMPT}
-        ]
-        # Add previous chat history from frontend (ensure roles are correct: user/assistant)
+        messages_for_groq = [{"role": "system", "content": SYSTEM_PROMPT}]
         for msg in chat_history:
-            # Only include valid roles and ensure 'content' key exists
             if msg.get("role") in ["user", "assistant"] and "content" in msg:
                 messages_for_groq.append({"role": msg["role"], "content": msg["content"]})
-            else:
-                print(f"Warning: Skipping invalid chat history message: {msg}")
 
-        # Add the current user message
         messages_for_groq.append({"role": "user", "content": user_message})
 
-        # Call Groq API
         chat_completion = groq_client.chat.completions.create(
             messages=messages_for_groq,
             model=GROQ_DEEPSEEK_MODEL,
-            temperature=0.7, # Adjust creativity (0.0 for deterministic, 1.0 for very creative)
-            max_tokens=1024, # Maximum number of tokens in the response
+            temperature=0.7, 
+            max_tokens=1024, 
         )
 
         ai_response_text = chat_completion.choices[0].message.content
         return {"response": ai_response_text}
 
-    except HTTPException as e:
-        # Re-raise explicit HTTP exceptions (e.g., 400 Bad Request)
-        raise e
     except Exception as e:
-        # Catch any other unexpected errors and return a 500 Internal Server Error
         print(f"Error in chat_endpoint: {e}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
-# --- Root Endpoint to Serve HTML ---
-@app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
+@app.get("/", response_class=FileResponse)
+async def serve_home():
     """
-    Serves the main bharatai.html file for the chatbot.
+    Serves the main landing page using an absolute path to prevent 404s.
     """
-    # This will look for 'bharatai.html' inside the directory specified in Jinja2Templates ('static')
+    index_path = os.path.join(BASE_DIR, "home", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"error": "index.html not found in home folder."}
+
+@app.get("/bharat-ai", response_class=HTMLResponse)
+async def read_chatbot(request: Request):
+    """
+    Serves the chatbot page.
+    """
     return templates.TemplateResponse("bharatai.html", {"request": request})
 
+if __name__ == "__main__":
+    # Using Port 9000 as it was successfully used in your previous session
+    uvicorn.run(app, host="127.0.0.1", port=9000)

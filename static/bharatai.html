@@ -321,124 +321,79 @@
             </div>
         </div>
     </div>
+
     <script>
-        // Get references to DOM elements
         const chatMessages = document.getElementById('chat-messages');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
         const loadingIndicator = document.getElementById('loading-indicator');
 
-        // IMPORTANT: chatHistory will now be managed on the frontend and sent to the backend
-        // The backend will add the system prompt.
-        let chatHistory = []; // Start with an empty history on frontend
+        let chatHistory = [];
 
-        // Initial welcome message from the AI (displayed immediately)
-        // This message is displayed by the frontend, the system prompt is handled by the backend.
-        appendMessage('ai', "Namaste! I am Bharat AI, your dedicated guide to everything about Bharat. How can I help you today?");
+        // Initial Namaste
+        appendMessage('ai', "Namaste! I am Bharat AI, your dedicated guide to the culture and heritage of Bharat. How may I assist you today?");
 
-
-        // Function to append messages to the chat display
         function appendMessage(sender, text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message-bubble');
-            if (sender === 'user') {
-                messageDiv.classList.add('user-message');
-            } else {
-                messageDiv.classList.add('ai-message');
-            }
-            messageDiv.textContent = text;
-            chatMessages.appendChild(messageDiv);
-            // Scroll to the bottom to show the latest message
+            const div = document.createElement('div');
+            div.className = `message-bubble ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+            div.textContent = text;
+            chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Function to send message to the FastAPI Backend
         async function sendMessage() {
-            const userText = userInput.value.trim();
-            if (userText === '') return; // Don't send empty messages
+            const text = userInput.value.trim();
+            if (!text) return;
 
-            // Append user message to display
-            appendMessage('user', userText);
-            // Add user message to chat history for the next API call
-            chatHistory.push({ role: "user", content: userText }); // Use 'content' for Groq/OpenAI format
-
-            userInput.value = ''; // Clear input field
-            sendButton.disabled = true; // Disable send button
-            loadingIndicator.style.display = 'block'; // Show loading indicator
+            appendMessage('user', text);
+            userInput.value = '';
+            sendButton.disabled = true;
+            loadingIndicator.style.display = 'flex';
 
             try {
-                // --- CRITICAL CHANGE: Point to your FastAPI backend endpoint ---
-                const backendApiUrl = "/chat"; // This is a relative path, assuming FastAPI is on the same host/port
-
-                const payload = {
-                    message: userText,
-                    // Send a copy of chatHistory to avoid modifying the original during map
-                    chatHistory: chatHistory.map(msg => ({ role: msg.role, content: msg.content }))
-                };
-
-                const response = await fetch(backendApiUrl, {
+                // FIXED: Using relative path to communicate with FastAPI
+                const response = await fetch("/chat", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        message: text,
+                        chatHistory: chatHistory
+                    })
                 });
 
+                // Robust check to avoid "Unexpected end of JSON" error
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`Backend Error: ${errorData.detail || response.statusText}`);
+                    const errorMsg = await response.text();
+                    throw new Error(errorMsg || "Server Error");
                 }
 
                 const result = await response.json();
+                let aiResponse = result.response || "I apologize, I could not process that.";
 
-                let aiResponseText = "Sorry, Bharat AI could not retrieve a response. Please try again."; // English for "Sorry, Bharat AI couldn't get a response. Please try again."
+                // Cleanup: Remove AI thought tags and replace "India" with "Bharat"
+                aiResponse = aiResponse.replace(/\s*<think>.*?<\/think>\s*/gis, '').trim();
+                aiResponse = aiResponse.replace(/\bIndia\b/gi, 'Bharat');
 
-                if (result.response) {
-                    aiResponseText = result.response;
-                    // --- FIX: Remove <think> tags and content within them more robustly ---
-                    // This regex finds content between <think> and </think> tags (non-greedy, global, case-insensitive)
-                    // and also handles potential leading/trailing whitespace around the tags.
-                    aiResponseText = aiResponseText.replace(/\s*<think>.*?<\/think>\s*/gis, '').trim();
-                    // Optional: Further clean up common thought-like phrases if they appear without tags
-                    // This is more aggressive and might remove desired content if not careful
-                    aiResponseText = aiResponseText.replace(/^(Okay, the user is asking.*?|I need to provide a clear and concise answer\.|I'll make sure the response is friendly and informative\.|The user repeated the question, maybe they didn't see the first response or wanted to confirm\.)\s*/gis, '').trim();
-                    // Clean up multiple newlines if they appear after removal
-                    aiResponseText = aiResponseText.replace(/\n\s*\n/g, '\n\n');
-
-                    // --- NEW FIX: Replace "India" with "Bharat" as a frontend safeguard ---
-                    // This regex finds "India" (case-insensitive, whole word) and replaces it with "Bharat".
-                    aiResponseText = aiResponseText.replace(/\bIndia\b/gi, 'Bharat');
-
-                } else {
-                    console.warn("Unexpected backend response structure:", result);
-                }
-
-                // Append AI response to display
-                appendMessage('ai', aiResponseText);
-                // Add AI response to chat history for future context
-                chatHistory.push({ role: "assistant", content: aiResponseText }); // Use 'assistant' for AI role
+                appendMessage('ai', aiResponse);
+                
+                // Update history
+                chatHistory.push({ role: "user", content: text });
+                chatHistory.push({ role: "assistant", content: aiResponse });
 
             } catch (error) {
-                console.error("Error communicating with backend:", error);
-                appendMessage('ai', `I apologize, but an error occurred: ${error.message}. Please try again later.`); // English for "I apologize, an error occurred: ... Please try again later."
+                console.error("Chat Error:", error);
+                appendMessage('ai', "I am currently unable to connect to the backend. Please check your Python terminal.");
             } finally {
-                sendButton.disabled = false; // Re-enable send button
-                loadingIndicator.style.display = 'none'; // Hide loading indicator
-                userInput.focus(); // Put focus back on input field
+                sendButton.disabled = false;
+                loadingIndicator.style.display = 'none';
+                userInput.focus();
             }
         }
 
-        // Event Listeners (remain the same)
-        sendButton.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        sendButton.onclick = sendMessage;
+        userInput.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
 
-        // Focus on input when page loads (remain a consistent practice)
-        window.onload = () => {
-            userInput.focus();
-        };
+        window.onload = () => userInput.focus();
     </script>
-    </body>
-
+</body>
 </html>
